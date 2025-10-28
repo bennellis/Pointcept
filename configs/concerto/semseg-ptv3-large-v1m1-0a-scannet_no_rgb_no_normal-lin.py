@@ -4,7 +4,7 @@ _base_ = ["../_base_/default_runtime.py"]
 batch_size = 24  # bs: total bs in all gpus
 num_worker = 48
 mix_prob = 0.8
-clip_grad = 3.0
+clip_grad = 0.1
 empty_cache = False
 enable_amp = True
 
@@ -61,7 +61,7 @@ param_dicts = [dict(keyword="block", lr=0.0002)]
 
 # dataset settings
 dataset_type = "ScanNetDataset"
-data_root = "data/scannet"
+data_root = "data/scannet_neither"
 
 data = dict(
     num_classes=20,

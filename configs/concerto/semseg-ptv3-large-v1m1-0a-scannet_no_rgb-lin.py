@@ -4,9 +4,9 @@ _base_ = ["../_base_/default_runtime.py"]
 batch_size = 24  # bs: total bs in all gpus
 num_worker = 48
 mix_prob = 0.8
-clip_grad = 3.0
+clip_grad = 0.1
 empty_cache = False
-enable_amp = True
+enable_amp = False
 
 # model settings
 model = dict(
@@ -61,7 +61,7 @@ param_dicts = [dict(keyword="block", lr=0.0002)]
 
 # dataset settings
 dataset_type = "ScanNetDataset"
-data_root = "data/scannet"
+data_root = "data/scannet_no_rgb"
 
 data = dict(
     num_classes=20,
@@ -120,7 +120,7 @@ data = dict(
             ),
             dict(type="SphereCrop", point_max=102400, mode="random"),
             dict(type="CenterShift", apply_z=False),
-            dict(type="NormalizeColor"),
+            # dict(type="NormalizeColor"),
             # dict(type="ShufflePoint"),
             dict(type="ToTensor"),
             dict(
@@ -147,7 +147,7 @@ data = dict(
                 return_inverse=True,
             ),
             dict(type="CenterShift", apply_z=False),
-            dict(type="NormalizeColor"),
+            # dict(type="NormalizeColor"),
             dict(type="ToTensor"),
             dict(
                 type="Collect",
@@ -163,7 +163,7 @@ data = dict(
         data_root=data_root,
         transform=[
             dict(type="CenterShift", apply_z=True),
-            dict(type="NormalizeColor"),
+            #dict(type="NormalizeColor"),
         ],
         test_mode=True,
         test_cfg=dict(

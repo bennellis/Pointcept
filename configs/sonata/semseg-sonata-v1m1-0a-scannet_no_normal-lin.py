@@ -12,15 +12,15 @@ enable_amp = True
 model = dict(
     type="DefaultSegmentorV2",
     num_classes=20,
-    backbone_out_channels=1728,
+    backbone_out_channels=1232,
     backbone=dict(
         type="PT-v3m2",
         in_channels=9,
         order=("z", "z-trans", "hilbert", "hilbert-trans"),
         stride=(2, 2, 2, 2),
         enc_depths=(3, 3, 3, 12, 3),
-        enc_channels=(64, 128, 256, 512, 768),
-        enc_num_head=(4, 8, 16, 32, 48),
+        enc_channels=(48, 96, 192, 384, 512),
+        enc_num_head=(3, 6, 12, 24, 32),
         enc_patch_size=(1024, 1024, 1024, 1024, 1024),
         mlp_ratio=4,
         qkv_bias=True,
@@ -47,7 +47,7 @@ model = dict(
 )
 
 # scheduler settings
-epoch = 100
+epoch = 200
 optimizer = dict(type="AdamW", lr=0.002, weight_decay=0.02)
 scheduler = dict(
     type="OneCycleLR",
@@ -61,7 +61,7 @@ param_dicts = [dict(keyword="block", lr=0.0002)]
 
 # dataset settings
 dataset_type = "ScanNetDataset"
-data_root = "data/scannet"
+data_root = "data/scannet_no_normals"
 
 data = dict(
     num_classes=20,
@@ -312,7 +312,7 @@ data = dict(
 hooks = [
     dict(
         type="CheckpointLoader",
-        keywords="module",
+        keywords="module.student.backbone",
         replacement="module.backbone",
     ),
     dict(type="IterationTimer", warmup_iter=2),
