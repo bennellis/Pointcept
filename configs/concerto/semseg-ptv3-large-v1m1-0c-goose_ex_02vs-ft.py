@@ -1,10 +1,10 @@
 _base_ = ["../_base_/default_runtime.py"]
 
 # misc custom setting
-batch_size = 24  # bs: total bs in all gpus
+batch_size = 8  # bs: total bs in all gpus
 num_worker = 48
 mix_prob = 0.8
-clip_grad = 3
+clip_grad = 3.0
 empty_cache = False
 enable_amp = True
 
@@ -12,7 +12,7 @@ enable_amp = True
 model = dict(
     type="DefaultSegmentorV2",
     num_classes=64,
-    backbone_out_channels=1728,
+    backbone_out_channels=64,
     backbone=dict(
         type="PT-v3m2",
         in_channels=9,
@@ -22,6 +22,10 @@ model = dict(
         enc_channels=(64, 128, 256, 512, 768),
         enc_num_head=(4, 8, 16, 32, 48),
         enc_patch_size=(1024, 1024, 1024, 1024, 1024),
+        dec_depths=(2, 2, 2, 2),
+        dec_channels=(64, 96, 192, 384),
+        dec_num_head=(4, 6, 12, 24),
+        dec_patch_size=(1024, 1024, 1024, 1024),
         mlp_ratio=4,
         qkv_bias=True,
         qk_scale=None,
@@ -36,18 +40,18 @@ model = dict(
         upcast_softmax=False,
         traceable=False,
         mask_token=False,
-        enc_mode=True,
+        enc_mode=False,
         freeze_encoder=False,
     ),
     criteria=[
         dict(type="CrossEntropyLoss", loss_weight=1.0, ignore_index=-1),
         dict(type="LovaszLoss", mode="multiclass", loss_weight=1.0, ignore_index=-1),
     ],
-    freeze_backbone=True,
+    freeze_backbone=False,
 )
 
 # scheduler settings
-epoch = 100
+epoch = 800
 optimizer = dict(type="AdamW", lr=0.002, weight_decay=0.02)
 scheduler = dict(
     type="OneCycleLR",
@@ -61,7 +65,7 @@ param_dicts = [dict(keyword="block", lr=0.0002)]
 
 # dataset settings
 dataset_type = "DefaultDataset"
-data_root = "data/gooseEx_no_outlier"
+data_root = "data/gooseEx_no_outlier_scaled_down_02vs"
 
 data = dict(
     num_classes=64,
@@ -157,7 +161,7 @@ data = dict(
             # dict(type="RandomColorDrop", p=0.2, color_augment=0.0),
             dict(
                 type="GridSample",
-                grid_size=0.05,
+                grid_size=0.02,
                 hash_type="fnv",
                 mode="train",
                 return_grid_coord=True,
@@ -184,7 +188,7 @@ data = dict(
             dict(type="Copy", keys_dict={"segment": "origin_segment"}),
             dict(
                 type="GridSample",
-                grid_size=0.05,
+                grid_size=0.02,
                 hash_type="fnv",
                 mode="train",
                 return_grid_coord=True,
@@ -213,7 +217,7 @@ data = dict(
         test_cfg=dict(
             voxelize=dict(
                 type="GridSample",
-                grid_size=0.05,
+                grid_size=0.02,
                 hash_type="fnv",
                 mode="test",
                 return_grid_coord=True,
